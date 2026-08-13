@@ -10,10 +10,10 @@ interface Props {
 }
 
 const CUISINE_OPTIONS = [
-  "American", "Asian Fusion", "BBQ", "Brazilian", "Chinese", "French",
-  "Greek", "Indian", "Italian", "Japanese", "Korean", "Mediterranean",
-  "Mexican", "Middle Eastern", "Pizza", "Seafood", "Sushi", "Thai",
-  "Vietnamese", "Other",
+  "American", "Asian Fusion", "BBQ", "Brazilian", "Breakfast", "Chinese",
+  "French", "Greek", "Indian", "Italian", "Japanese", "Korean",
+  "Mediterranean", "Mexican", "Middle Eastern", "Pizza", "Seafood",
+  "Sushi", "Thai", "Vietnamese", "Other",
 ];
 
 const VIBE_OPTIONS = ["casual", "date-night", "fast", "family", "late-night", "outdoor", "sports-bar", "upscale"];
