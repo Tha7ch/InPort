@@ -93,7 +93,7 @@ Respond with ONLY valid JSON, no markdown:
 {"restaurant_id": "uuid", "name": "restaurant name", "reasoning": "2-3 sentence explanation of why this pick, mentioning any deals", "deal_highlight": "the deal description or null if no deal"}`;
 
   const message = await client.messages.create({
-    model: "claude-sonnet-4-20250514",
+    model: "claude-haiku-4-5-20251001",
     max_tokens: 300,
     messages: [{ role: "user", content: prompt }],
   });
