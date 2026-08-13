@@ -70,27 +70,19 @@ export async function getRecommendation(options: RecommendOptions): Promise<Reco
           .join("\n")
       : "  No recent history.";
 
-  const prompt = `You are InPort, a restaurant recommendation assistant for Newburyport, MA.
+  const prompt = `Pick ONE restaurant for tonight from the list below. You MUST pick one — never ask for more info.
 
-Given the user's restaurant list, tonight's active deals, and recent dining history, recommend ONE restaurant for tonight.
-
-PRIORITIES:
-1. Heavily prioritize restaurants with active deals tonight
-2. Avoid places visited in the last 3 meals unless they have an exceptional deal
-3. Consider the user's filters and preferences
-4. Variety is good — rotate through different cuisines
+Restaurants with "TONIGHT'S DEALS" listed are running specials right now — favor those. Avoid the most recent 3 meals in the history unless a deal makes it worth repeating. Rotate cuisines when possible.
+${filters?.mode ? `\nThe user wants: ${filters.mode}` : ""}${filters?.cuisine ? `\nCuisine preference: ${filters.cuisine}` : ""}
 
 RESTAURANTS:
 ${restaurantList}
 
-RECENT DINING HISTORY:
+RECENT HISTORY:
 ${recentHistory}
 
-${filters?.mode ? `USER WANTS: ${filters.mode}` : ""}
-${filters?.cuisine ? `CUISINE PREFERENCE: ${filters.cuisine}` : ""}
-
-Respond with ONLY valid JSON, no markdown:
-{"restaurant_id": "uuid", "name": "restaurant name", "reasoning": "2-3 sentence explanation of why this pick, mentioning any deals", "deal_highlight": "the deal description or null if no deal"}`;
+Respond with ONLY this JSON (no markdown, no explanation outside the JSON):
+{"restaurant_id": "<the restaurant's ID>", "name": "<name>", "reasoning": "<2-3 casual sentences about why this pick — mention any active deal>", "deal_highlight": "<deal description if one exists, otherwise null>"}`;
 
   const message = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
