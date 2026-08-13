@@ -92,8 +92,10 @@ Respond with ONLY this JSON (no markdown, no explanation outside the JSON):
 
   const text = message.content[0].type === "text" ? message.content[0].text : "";
 
+  const cleaned = text.replace(/```(?:json)?\s*/g, "").trim();
+
   try {
-    return JSON.parse(text) as Recommendation;
+    return JSON.parse(cleaned) as Recommendation;
   } catch {
     return {
       restaurant_id: eligible[0].id,
