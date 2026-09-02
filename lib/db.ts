@@ -40,8 +40,8 @@ export async function getRestaurantsWithDeals(): Promise<RestaurantWithDeals[]> 
 export async function createRestaurant(data: Omit<Restaurant, "id" | "created_at" | "updated_at">): Promise<Restaurant> {
   const sql = getDb();
   const rows = await sql`
-    INSERT INTO restaurants (name, cuisine, price_tier, supports_dine_in, supports_takeout, supports_delivery, delivery_platform, vibe_tags, favorite_dishes, notes, address, google_place_id)
-    VALUES (${data.name}, ${data.cuisine}, ${data.price_tier}, ${data.supports_dine_in}, ${data.supports_takeout}, ${data.supports_delivery}, ${data.delivery_platform}, ${data.vibe_tags}, ${data.favorite_dishes}, ${data.notes}, ${data.address}, ${data.google_place_id})
+    INSERT INTO restaurants (name, cuisine, price_tier, supports_dine_in, supports_takeout, supports_delivery, delivery_platform, vibe_tags, favorite_dishes, notes, address, google_place_id, operating_hours)
+    VALUES (${data.name}, ${data.cuisine}, ${data.price_tier}, ${data.supports_dine_in}, ${data.supports_takeout}, ${data.supports_delivery}, ${data.delivery_platform}, ${data.vibe_tags}, ${data.favorite_dishes}, ${data.notes}, ${data.address}, ${data.google_place_id}, ${JSON.stringify(data.operating_hours)})
     RETURNING *
   `;
   return rows[0] as unknown as Restaurant;
@@ -67,6 +67,7 @@ export async function updateRestaurant(id: string, data: Partial<Omit<Restaurant
       notes = ${merged.notes},
       address = ${merged.address},
       google_place_id = ${merged.google_place_id},
+      operating_hours = ${JSON.stringify(merged.operating_hours)},
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *
@@ -142,10 +143,12 @@ export async function initializeDatabase(): Promise<void> {
       notes TEXT,
       address TEXT,
       google_place_id TEXT,
+      operating_hours JSONB,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     )
   `;
+  await sql`ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS operating_hours JSONB`;
   await sql`
     CREATE TABLE IF NOT EXISTS deals (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

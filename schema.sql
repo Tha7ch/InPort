@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS restaurants (
   notes TEXT,
   address TEXT,
   google_place_id TEXT,
+  operating_hours JSONB,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

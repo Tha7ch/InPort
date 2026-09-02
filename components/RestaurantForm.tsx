@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import type { Restaurant, Deal } from "@/types";
+import type { Restaurant, Deal, OperatingHours, DayHours } from "@/types";
 
 interface Props {
   restaurant?: Restaurant;
@@ -34,6 +34,13 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
   const [favoriteDishes, setFavoriteDishes] = useState(restaurant?.favorite_dishes?.join(", ") ?? "");
   const [notes, setNotes] = useState(restaurant?.notes ?? "");
   const [address, setAddress] = useState(restaurant?.address ?? "");
+  const [operatingHours, setOperatingHours] = useState<OperatingHours>(
+    restaurant?.operating_hours ?? {}
+  );
+
+  function setDayHours(day: keyof OperatingHours, hours: DayHours | null) {
+    setOperatingHours((prev) => ({ ...prev, [day]: hours }));
+  }
 
   const [deals, setDeals] = useState<Omit<Deal, "id" | "restaurant_id">[]>(
     existingDeals.map((d) => ({
@@ -87,6 +94,7 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
       notes: notes || null,
       address: address || null,
       google_place_id: restaurant?.google_place_id ?? null,
+      operating_hours: Object.keys(operatingHours).length > 0 ? operatingHours : null,
     };
 
     let restaurantId = restaurant?.id;
@@ -278,6 +286,53 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
           className="w-full rounded-xl border px-4 py-2.5 text-sm outline-none"
           style={inputStyle}
         />
+      </div>
+
+      <div>
+        <label className="mb-1.5 block text-sm font-medium">Operating Hours</label>
+        <div className="space-y-2">
+          {DAY_OPTIONS.map((day) => {
+            const dayKey = day as keyof OperatingHours;
+            const hours = operatingHours[dayKey];
+            const isOpen = hours !== null && hours !== undefined;
+            return (
+              <div key={day} className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDayHours(dayKey, isOpen ? null : { open: "11:00", close: "21:00" })}
+                  className="w-12 rounded-lg py-1.5 text-[10px] font-medium transition-colors"
+                  style={{
+                    background: isOpen ? "var(--accent)" : "var(--muted-bg)",
+                    color: isOpen ? "white" : "var(--foreground)",
+                  }}
+                >
+                  {day.slice(0, 3).toUpperCase()}
+                </button>
+                {isOpen && hours ? (
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="time"
+                      value={hours.open}
+                      onChange={(e) => setDayHours(dayKey, { ...hours, open: e.target.value })}
+                      className="rounded-lg border px-2 py-1.5 text-xs outline-none"
+                      style={inputStyle}
+                    />
+                    <span className="text-xs" style={{ color: "var(--muted)" }}>to</span>
+                    <input
+                      type="time"
+                      value={hours.close}
+                      onChange={(e) => setDayHours(dayKey, { ...hours, close: e.target.value })}
+                      className="rounded-lg border px-2 py-1.5 text-xs outline-none"
+                      style={inputStyle}
+                    />
+                  </div>
+                ) : (
+                  <span className="text-xs" style={{ color: "var(--muted)" }}>Closed</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <div>

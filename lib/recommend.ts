@@ -1,8 +1,24 @@
 import Anthropic from "@anthropic-ai/sdk";
-import type { RestaurantWithDeals, HistoryEntry, Recommendation } from "@/types";
+import type { RestaurantWithDeals, HistoryEntry, Recommendation, DayHours } from "@/types";
 import { getTonightDeals } from "./deals";
 
 const client = new Anthropic();
+
+const DAYS = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"] as const;
+
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(":").map(Number);
+  return h * 60 + m;
+}
+
+function getRestaurantStatus(hours: DayHours | null | undefined, nowMinutes: number): "closed" | "closing-soon" | "open" {
+  if (!hours) return "closed";
+  const open = timeToMinutes(hours.open);
+  const close = timeToMinutes(hours.close);
+  if (nowMinutes < open || nowMinutes >= close) return "closed";
+  if (close - nowMinutes <= 45) return "closing-soon";
+  return "open";
+}
 
 interface RecommendOptions {
   restaurants: RestaurantWithDeals[];
@@ -22,7 +38,17 @@ export async function getRecommendation(options: RecommendOptions): Promise<Reco
   const tonightDeals = getTonightDeals(restaurants, now);
   const dealRestaurantIds = new Set(tonightDeals.map((d) => d.restaurant.id));
 
+  const eastern = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+  const dayName = DAYS[eastern.getDay()];
+  const nowMinutes = eastern.getHours() * 60 + eastern.getMinutes();
+
   let eligible = restaurants.filter((r) => !excludeIds.includes(r.id));
+
+  eligible = eligible.filter((r) => {
+    if (!r.operating_hours) return true;
+    const todayHours = r.operating_hours[dayName];
+    return getRestaurantStatus(todayHours, nowMinutes) !== "closed";
+  });
 
   if (filters?.cuisine) {
     eligible = eligible.filter((r) => r.cuisine.some((c) => c.toLowerCase() === filters.cuisine!.toLowerCase()));
@@ -54,8 +80,12 @@ export async function getRecommendation(options: RecommendOptions): Promise<Reco
     .map((r) => {
       const deals = tonightDeals.find((d) => d.restaurant.id === r.id);
       const dealStr = deals ? `\n    TONIGHT'S DEALS: ${deals.tonightDeals.map((d) => d.description).join(", ")}` : "";
-      return `  - ${r.name} (ID: ${r.id})
-    Cuisine: ${r.cuisine.join(", ")} | Price: ${"$".repeat(r.price_tier)}
+      const todayHours = r.operating_hours?.[dayName];
+      const status = getRestaurantStatus(todayHours, nowMinutes);
+      const closingNote = status === "closing-soon" && todayHours ? ` ⚠️ CLOSING SOON (at ${todayHours.close})` : "";
+      const hoursStr = todayHours ? `${todayHours.open}–${todayHours.close}` : "hours unknown";
+      return `  - ${r.name} (ID: ${r.id})${closingNote}
+    Cuisine: ${r.cuisine.join(", ")} | Price: ${"$".repeat(r.price_tier)} | Today: ${hoursStr}
     Favorite dishes: ${r.favorite_dishes.length > 0 ? r.favorite_dishes.join(", ") : "none listed"}
     Vibes: ${r.vibe_tags.length > 0 ? r.vibe_tags.join(", ") : "none"}
     Serves: ${[r.supports_dine_in && "dine-in", r.supports_takeout && "takeout", r.supports_delivery && "delivery"].filter(Boolean).join(", ")}${dealStr}`;
@@ -72,7 +102,7 @@ export async function getRecommendation(options: RecommendOptions): Promise<Reco
 
   const prompt = `Pick ONE restaurant for tonight from the list below. You MUST pick one — never ask for more info.
 
-Restaurants with "TONIGHT'S DEALS" listed are running specials right now — favor those. Avoid the most recent 3 meals in the history unless a deal makes it worth repeating. Rotate cuisines when possible.
+Restaurants with "TONIGHT'S DEALS" listed are running specials right now — favor those. Avoid places marked ⚠️ CLOSING SOON unless the user wants takeout/delivery. Avoid the most recent 3 meals in the history unless a deal makes it worth repeating. Rotate cuisines when possible.
 ${filters?.mode ? `\nThe user wants: ${filters.mode}` : ""}${filters?.cuisine ? `\nCuisine preference: ${filters.cuisine}` : ""}
 
 RESTAURANTS:

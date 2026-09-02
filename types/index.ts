@@ -1,3 +1,12 @@
+export interface DayHours {
+  open: string;
+  close: string;
+}
+
+export type OperatingHours = {
+  [day in "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday" | "sunday"]?: DayHours | null;
+};
+
 export interface Restaurant {
   id: string;
   name: string;
@@ -12,6 +21,7 @@ export interface Restaurant {
   notes: string | null;
   address: string | null;
   google_place_id: string | null;
+  operating_hours: OperatingHours | null;
   created_at: string;
   updated_at: string;
 }
