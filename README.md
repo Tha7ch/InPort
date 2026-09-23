@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# InPort
+
+A public, mobile-first restaurant recommendation PWA for Newburyport, powered by Next.js, Neon Postgres, and Claude.
 
 ## Getting Started
 
@@ -34,3 +36,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Verification and security
+
+Run `npx tsc --noEmit`, `npm run lint`, and `npm run build`. Secrets belong in `.env.local` or Vercel and must never be committed. Database initialization, seed endpoints, deployments, and production writes are intentional owner actions, not verification steps.
+
+This is an intentional public repository. Preserve its existing GitHub visibility and Vercel workflow.

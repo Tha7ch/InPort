@@ -1,3 +1,5 @@
+@AGENTS.md
+
 # InPort
 
 Restaurant recommendation PWA for Newburyport, MA. Mobile-first, deal-aware, powered by Claude.
