@@ -37,3 +37,7 @@ Never reset, discard, overwrite, or include unrelated working changes.
 Use lightweight models for bounded discovery, formatting, and mechanical edits. Use stronger reasoning for architecture, authentication, database/schema changes, credential handling, deployment risk, ambiguity, hard debugging, and final review.
 
 Read `CLAUDE.md` for the preserved app architecture, environment variables, directory layout, and local-use patterns.
+
+## Completion and GitHub history
+
+After significant authorized source, configuration, or documentation changes, review the intended diff, stage explicit paths only, run the applicable verification checks, and commit a descriptive checkpoint. Push the intended branch to the existing Tha7ch/InPort origin, preserving its PUBLIC visibility. Verify the live remote branch hash equals local HEAD before reporting completion. Report any failed checks, blocked pushes or changes left local; a local commit alone is not a GitHub backup. Preserve unrelated work and never force-push or rewrite published history for routine recovery. This standing source-backup authorization does not authorize database writes or manual deployments; respect the existing deployment workflow.
