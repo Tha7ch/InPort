@@ -48,3 +48,5 @@ This is an intentional public repository. Preserve its existing GitHub visibilit
 The Deals page has a calendar date picker plus Today and Tomorrow shortcuts. It shows saved recurring offers for the selected weekday, including when today has no offers. Dates and live happy-hour badges use America/New_York time; LIVE appears only on today. Future dates reflect the saved weekly schedule, not verified availability or offer expiry.
 
 Validated 2026-11-08: type-check, lint, production build, and seven date/time boundary assertions (New York midnight, year rollover, leap day, DST date arithmetic, happy-hour window/day).
+
+Local synthetic-data browser check: empty Sunday, Tomorrow shows Monday offer, calendar opens and selecting Tuesday shows only Tuesday offer without LIVE. App-rendered calendar used for embedded-browser compatibility. Publication is pending explicit approval after automatic review blocked the public-main push.

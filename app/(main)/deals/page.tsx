@@ -44,6 +44,8 @@ export default function DealsPage() {
   const [now, setNow] = useState<Date | null>(null);
   const [chosenDate, setChosenDate] = useState<string | null>(null);
   const [loadError, setLoadError] = useState(false);
+  const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState<string | null>(null);
 
   useEffect(() => {
     const updateClock = () => setNow(new Date());
@@ -86,6 +88,26 @@ export default function DealsPage() {
       }).format(new Date(`${selectedDate}T12:00:00Z`))
     : "";
 
+  const visibleMonth = calendarMonth || selectedDate.slice(0, 7);
+  const monthStart = visibleMonth ? new Date(`${visibleMonth}-01T12:00:00Z`) : null;
+  const monthOffset = monthStart?.getUTCDay() ?? 0;
+  const monthDays = monthStart
+    ? new Date(Date.UTC(monthStart.getUTCFullYear(), monthStart.getUTCMonth() + 1, 0)).getUTCDate()
+    : 0;
+  const monthLabel = monthStart
+    ? new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "long", year: "numeric" }).format(monthStart)
+    : "";
+  function moveMonth(offset: number) {
+    if (!monthStart) return;
+    const target = new Date(monthStart);
+    target.setUTCMonth(target.getUTCMonth() + offset);
+    setCalendarMonth(target.toISOString().slice(0, 7));
+  }
+  function closeCalendar() {
+    setCalendarOpen(false);
+    document.querySelector<HTMLButtonElement>('[aria-controls="deals-calendar"]')?.focus();
+  }
+
   const restaurantsWithSelectedDeals = restaurants
     .map((r) => ({
       restaurant: r,
@@ -103,16 +125,48 @@ export default function DealsPage() {
       </div>
 
       <div className="mb-6 space-y-3">
-        <label htmlFor="deals-date" className="block text-sm font-medium">Choose a date</label>
-        <input
-          id="deals-date"
-          type="date"
-          value={selectedDate}
+        <span id="date-picker-label" className="block text-sm font-medium">Choose a date</span>
+        <button
+          type="button"
           disabled={!now}
-          onChange={(event) => setChosenDate(event.target.value || null)}
-          className="min-h-11 w-full rounded-xl border px-3 py-2 text-base focus-visible:outline-2 focus-visible:outline-offset-2"
+          aria-labelledby="date-picker-label selected-date-label"
+          aria-expanded={calendarOpen}
+          aria-controls="deals-calendar"
+          onClick={() => { setCalendarMonth(selectedDate.slice(0, 7)); setCalendarOpen(!calendarOpen); }}
+          className="flex min-h-11 w-full items-center justify-between gap-2 rounded-xl border px-3 py-2 text-left text-base"
           style={{ background: "var(--card)", borderColor: "var(--card-border)", color: "var(--foreground)" }}
-        />
+        >
+          <span id="selected-date-label">{dateLabel || "Loading date..."}</span>
+          <span aria-hidden="true" className="text-xs">Calendar</span>
+        </button>
+        {calendarOpen && (
+          <div id="deals-calendar" role="group" aria-label="Choose a deals date"
+            onKeyDown={(event) => { if (event.key === "Escape") closeCalendar(); }}
+            className="rounded-2xl border p-3 shadow-lg"
+            style={{ background: "var(--card)", borderColor: "var(--card-border)" }}>
+            <div className="mb-2 flex items-center justify-between">
+              <button type="button" aria-label="Previous month" onClick={() => moveMonth(-1)} className="min-h-11 min-w-11 rounded-lg text-xl">&lsaquo;</button>
+              <span className="font-semibold" aria-live="polite">{monthLabel}</span>
+              <button type="button" aria-label="Next month" onClick={() => moveMonth(1)} className="min-h-11 min-w-11 rounded-lg text-xl">&rsaquo;</button>
+            </div>
+            <div className="grid grid-cols-7 gap-1 text-center">
+              {["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"].map((day) => <span key={day} className="py-1 text-xs" aria-hidden="true">{day}</span>)}
+              {Array.from({ length: monthOffset }, (_, index) => <span key={`blank-${index}`} />)}
+              {Array.from({ length: monthDays }, (_, index) => {
+                const day = index + 1;
+                const date = `${visibleMonth}-${String(day).padStart(2, "0")}`;
+                return (
+                  <button key={date} type="button" aria-label={`${monthLabel} ${day}`}
+                    aria-pressed={date === selectedDate} aria-current={date === today ? "date" : undefined}
+                    onClick={() => { setChosenDate(date); closeCalendar(); }}
+                    className="min-h-11 rounded-lg text-sm font-medium"
+                    style={{ background: date === selectedDate ? "var(--accent)" : "var(--muted-bg)", color: date === selectedDate ? "white" : "var(--foreground)" }}
+                  >{day}</button>
+                );
+              })}
+            </div>
+          </div>
+        )}
         <div className="flex gap-2">
           {[
             { label: "Today", date: today },
@@ -123,7 +177,7 @@ export default function DealsPage() {
               type="button"
               disabled={!now}
               aria-pressed={selectedDate === date}
-              onClick={() => setChosenDate(label === "Today" ? null : date)}
+              onClick={() => { setChosenDate(label === "Today" ? null : date); setCalendarOpen(false); }}
               className="min-h-11 rounded-full px-4 py-2 text-sm font-medium"
               style={{
                 background: selectedDate === date ? "var(--accent)" : "var(--muted-bg)",
