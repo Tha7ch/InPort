@@ -172,7 +172,7 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
               className="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
               style={{
                 background: cuisines.includes(c) ? "var(--accent)" : "var(--muted-bg)",
-                color: cuisines.includes(c) ? "white" : "var(--foreground)",
+                color: cuisines.includes(c) ? "var(--on-accent)" : "var(--foreground)",
               }}
             >
               {c}
@@ -192,7 +192,7 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
               className="flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors"
               style={{
                 background: priceTier === tier ? "var(--accent)" : "var(--muted-bg)",
-                color: priceTier === tier ? "white" : "var(--foreground)",
+                color: priceTier === tier ? "var(--on-accent)" : "var(--foreground)",
               }}
             >
               {"$".repeat(tier)}
@@ -216,7 +216,7 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
               className="flex-1 rounded-xl py-2.5 text-sm font-medium transition-colors"
               style={{
                 background: opt.value ? "var(--accent)" : "var(--muted-bg)",
-                color: opt.value ? "white" : "var(--foreground)",
+                color: opt.value ? "var(--on-accent)" : "var(--foreground)",
               }}
             >
               {opt.label}
@@ -254,7 +254,7 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
               className="rounded-full px-3 py-1.5 text-xs font-medium transition-colors"
               style={{
                 background: vibeTags.includes(vibe) ? "var(--accent)" : "var(--muted-bg)",
-                color: vibeTags.includes(vibe) ? "white" : "var(--foreground)",
+                color: vibeTags.includes(vibe) ? "var(--on-accent)" : "var(--foreground)",
               }}
             >
               {vibe}
@@ -303,7 +303,7 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
                   className="w-12 rounded-lg py-1.5 text-[10px] font-medium transition-colors"
                   style={{
                     background: isOpen ? "var(--accent)" : "var(--muted-bg)",
-                    color: isOpen ? "white" : "var(--foreground)",
+                    color: isOpen ? "var(--on-accent)" : "var(--foreground)",
                   }}
                 >
                   {day.slice(0, 3).toUpperCase()}
@@ -420,7 +420,7 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
                       className="rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors"
                       style={{
                         background: deal.days.includes(day) ? "var(--accent)" : "var(--card)",
-                        color: deal.days.includes(day) ? "white" : "var(--foreground)",
+                        color: deal.days.includes(day) ? "var(--on-accent)" : "var(--foreground)",
                       }}
                     >
                       {day.slice(0, 3).toUpperCase()}
@@ -462,7 +462,7 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
         type="submit"
         disabled={saving || !name || cuisines.length === 0}
         className="w-full rounded-xl py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-50"
-        style={{ background: "var(--accent)" }}
+        style={{ background: "var(--accent)", color: "var(--on-accent)" }}
       >
         {saving ? "Saving..." : restaurant ? "Save changes" : "Add restaurant"}
       </button>

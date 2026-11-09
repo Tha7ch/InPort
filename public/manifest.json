@@ -4,8 +4,8 @@
   "description": "Restaurant recommendations for Newburyport, MA",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#1a1412",
-  "theme_color": "#1a1412",
+  "background_color": "#071e30",
+  "theme_color": "#071e30",
   "orientation": "portrait",
   "icons": [
     {

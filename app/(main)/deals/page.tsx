@@ -160,7 +160,7 @@ export default function DealsPage() {
                     aria-pressed={date === selectedDate} aria-current={date === today ? "date" : undefined}
                     onClick={() => { setChosenDate(date); closeCalendar(); }}
                     className="min-h-11 rounded-lg text-sm font-medium"
-                    style={{ background: date === selectedDate ? "var(--accent)" : "var(--muted-bg)", color: date === selectedDate ? "white" : "var(--foreground)" }}
+                    style={{ background: date === selectedDate ? "var(--accent)" : "var(--muted-bg)", color: date === selectedDate ? "var(--on-accent)" : "var(--foreground)" }}
                   >{day}</button>
                 );
               })}
@@ -181,7 +181,7 @@ export default function DealsPage() {
               className="min-h-11 rounded-full px-4 py-2 text-sm font-medium"
               style={{
                 background: selectedDate === date ? "var(--accent)" : "var(--muted-bg)",
-                color: selectedDate === date ? "white" : "var(--foreground)",
+                color: selectedDate === date ? "var(--on-accent)" : "var(--foreground)",
               }}
             >{label}</button>
           ))}

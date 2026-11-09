@@ -79,7 +79,7 @@ export default function RecommendationCard({ recommendation, restaurant, onNext,
           onClick={onLockIn}
           disabled={loading}
           className="flex-1 rounded-xl py-3 text-sm font-semibold text-white transition-colors"
-          style={{ background: "var(--accent)" }}
+          style={{ background: "var(--accent)", color: "var(--on-accent)" }}
         >
           Lock it in
         </button>

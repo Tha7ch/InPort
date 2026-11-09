@@ -88,7 +88,7 @@ export default function HomePage() {
           <button
             onClick={handleRecommend}
             className="w-full rounded-2xl py-5 text-lg font-bold text-white transition-transform active:scale-[0.98]"
-            style={{ background: "var(--accent)" }}
+            style={{ background: "var(--accent)", color: "var(--on-accent)" }}
           >
             Surprise me
           </button>

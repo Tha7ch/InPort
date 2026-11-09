@@ -61,7 +61,7 @@ export default function LoginPage() {
             type="submit"
             disabled={loading || !pin}
             className="w-full rounded-xl py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-50"
-            style={{ background: "var(--accent)" }}
+            style={{ background: "var(--accent)", color: "var(--on-accent)" }}
           >
             {loading ? "..." : "Enter"}
           </button>

@@ -43,7 +43,7 @@ export default function AdminPage() {
         <Link
           href="/admin/new"
           className="rounded-xl px-4 py-2.5 text-sm font-semibold text-white"
-          style={{ background: "var(--accent)" }}
+          style={{ background: "var(--accent)", color: "var(--on-accent)" }}
         >
           + Add
         </Link>

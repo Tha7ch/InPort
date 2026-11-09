@@ -30,7 +30,7 @@ export default function FilterBar({ filters, onChange, cuisines }: Props) {
             className="whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors"
             style={{
               background: filters.mode === mode.value ? "var(--accent)" : "var(--muted-bg)",
-              color: filters.mode === mode.value ? "white" : "var(--foreground)",
+              color: filters.mode === mode.value ? "var(--on-accent)" : "var(--foreground)",
             }}
           >
             {mode.label}
