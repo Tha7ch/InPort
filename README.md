@@ -49,4 +49,4 @@ The Deals page has a calendar date picker plus Today and Tomorrow shortcuts. It 
 
 Validated 2026-11-08: type-check, lint, production build, and seven date/time boundary assertions (New York midnight, year rollover, leap day, DST date arithmetic, happy-hour window/day).
 
-Local synthetic-data browser check: empty Sunday, Tomorrow shows Monday offer, calendar opens and selecting Tuesday shows only Tuesday offer without LIVE. App-rendered calendar used for embedded-browser compatibility. Publication is pending explicit approval after automatic review blocked the public-main push.
+Local synthetic-data browser check: empty Sunday, Tomorrow shows Monday offer, calendar opens and selecting Tuesday shows only Tuesday offer without LIVE. App-rendered calendar used for embedded-browser compatibility. Trace approved public GitHub publication and the existing Vercel deployment on 2026-11-08.
