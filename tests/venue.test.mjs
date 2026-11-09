@@ -37,7 +37,7 @@ test('Poynt has source-backed partial ranges, no invented other prices', () => {
   assert.deepEqual(profile?.wine, { min: 13, max: 19 });
   assert.deepEqual(profile?.cocktails, { min: 15, max: 15 });
   assert.ok(profile?.coverage?.includes('drafts unpriced'));
-  assert.equal(getDrinkProfile({ id: 'other', name: 'The Goat' }), undefined);
+  assert.equal(getDrinkProfile({ id: 'other', name: 'Unknown restaurant' }), undefined);
   assert.equal(getDrinkProfile({ id: 'other', name: 'The Poynt elsewhere' }), undefined);
 });
 

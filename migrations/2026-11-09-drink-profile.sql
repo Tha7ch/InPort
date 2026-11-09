@@ -3,7 +3,7 @@
 BEGIN;
 ALTER TABLE restaurants ADD COLUMN IF NOT EXISTS drink_profile JSONB;
 
--- Existing profiles and explicit JSON null (a user-cleared profile) are preserved.
+-- Existing profiles and explicit {"cleared":true} markers are preserved.
 UPDATE restaurants
 SET drink_profile = '{
   "beer": { "min": 5, "max": 8 },

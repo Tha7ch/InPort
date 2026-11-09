@@ -1,4 +1,5 @@
 import { neon } from "@neondatabase/serverless";
+import { encodeDrinkProfile, normalizeRestaurantDrinkStorage } from "./drink-storage";
 import type { Restaurant, Deal, HistoryEntry, RestaurantWithDeals } from "@/types";
 
 function getDb() {
@@ -8,13 +9,13 @@ function getDb() {
 export async function getAllRestaurants(): Promise<Restaurant[]> {
   const sql = getDb();
   const rows = await sql`SELECT * FROM restaurants ORDER BY name`;
-  return rows as unknown as Restaurant[];
+  return (rows as unknown as Restaurant[]).map(normalizeRestaurantDrinkStorage);
 }
 
 export async function getRestaurantById(id: string): Promise<Restaurant | null> {
   const sql = getDb();
   const rows = await sql`SELECT * FROM restaurants WHERE id = ${id}`;
-  return (rows[0] as unknown as Restaurant) ?? null;
+  return rows[0] ? normalizeRestaurantDrinkStorage(rows[0] as unknown as Restaurant) : null;
 }
 
 export async function getRestaurantsWithDeals(): Promise<RestaurantWithDeals[]> {
@@ -32,7 +33,7 @@ export async function getRestaurantsWithDeals(): Promise<RestaurantWithDeals[]> 
   }
 
   return (restaurants as unknown as Restaurant[]).map((r) => ({
-    ...r,
+    ...normalizeRestaurantDrinkStorage(r),
     deals: dealsByRestaurant.get(r.id) || [],
   }));
 }
@@ -45,10 +46,10 @@ export async function createRestaurant(data: Omit<Restaurant, "id" | "created_at
     RETURNING *
   ` : await sql`
     INSERT INTO restaurants (name, cuisine, price_tier, supports_dine_in, supports_takeout, supports_delivery, delivery_platform, vibe_tags, favorite_dishes, notes, address, google_place_id, operating_hours, drink_profile)
-    VALUES (${data.name}, ${data.cuisine}, ${data.price_tier}, ${data.supports_dine_in}, ${data.supports_takeout}, ${data.supports_delivery}, ${data.delivery_platform}, ${data.vibe_tags}, ${data.favorite_dishes}, ${data.notes}, ${data.address}, ${data.google_place_id}, ${JSON.stringify(data.operating_hours)}, ${JSON.stringify(data.drink_profile)})
+    VALUES (${data.name}, ${data.cuisine}, ${data.price_tier}, ${data.supports_dine_in}, ${data.supports_takeout}, ${data.supports_delivery}, ${data.delivery_platform}, ${data.vibe_tags}, ${data.favorite_dishes}, ${data.notes}, ${data.address}, ${data.google_place_id}, ${JSON.stringify(data.operating_hours)}, ${JSON.stringify(encodeDrinkProfile(data.drink_profile))})
     RETURNING *
   `;
-  return rows[0] as unknown as Restaurant;
+  return normalizeRestaurantDrinkStorage(rows[0] as unknown as Restaurant);
 }
 
 export async function updateRestaurant(id: string, data: Partial<Omit<Restaurant, "id" | "created_at" | "updated_at">>): Promise<Restaurant | null> {
@@ -90,12 +91,12 @@ export async function updateRestaurant(id: string, data: Partial<Omit<Restaurant
       address = ${merged.address},
       google_place_id = ${merged.google_place_id},
       operating_hours = ${JSON.stringify(merged.operating_hours)},
-      drink_profile = ${JSON.stringify(data.drink_profile)},
+      drink_profile = ${JSON.stringify(encodeDrinkProfile(data.drink_profile))},
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *
   `;
-  return (rows[0] as unknown as Restaurant) ?? null;
+  return rows[0] ? normalizeRestaurantDrinkStorage(rows[0] as unknown as Restaurant) : null;
 }
 
 export async function deleteRestaurant(id: string): Promise<boolean> {
