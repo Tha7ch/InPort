@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { validateDrinkProfile, type DrinkProfile } from "@/lib/drink-profile";
+import { getDrinkProfile } from "@/lib/drinks";
 import { useRouter } from "next/navigation";
 import type { Restaurant, Deal, OperatingHours, DayHours } from "@/types";
 
@@ -22,6 +24,28 @@ const DAY_OPTIONS = ["monday", "tuesday", "wednesday", "thursday", "friday", "sa
 export default function RestaurantForm({ restaurant, existingDeals = [] }: Props) {
   const router = useRouter();
   const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+  const [drinkEdited, setDrinkEdited] = useState(false);
+  const initialDrinkProfile = restaurant ? getDrinkProfile(restaurant) : undefined;
+  const [drinkPrices, setDrinkPrices] = useState(() => Object.fromEntries(
+    (["beer", "wine", "cocktails"] as const).map((key) => [key, {
+      min: initialDrinkProfile?.[key]?.min.toString() ?? "",
+      max: initialDrinkProfile?.[key]?.max.toString() ?? "",
+    }])
+  ) as Record<"beer" | "wine" | "cocktails", { min: string; max: string }>);
+  const [drinkSource, setDrinkSource] = useState(initialDrinkProfile?.sourceUrl ?? "");
+  const [drinkChecked, setDrinkChecked] = useState(initialDrinkProfile?.checkedAt ?? "");
+  const [drinkCoverage, setDrinkCoverage] = useState(initialDrinkProfile?.coverage ?? "");
+
+  async function checkedFetch(url: string, options: RequestInit) {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+      const body = await response.json().catch(() => ({}));
+      throw new Error(body.error || "Save failed. Some changes may already have been saved; reload before retrying.");
+    }
+    return response;
+  }
+
 
   const [name, setName] = useState(restaurant?.name ?? "");
   const [cuisines, setCuisines] = useState<string[]>(restaurant?.cuisine ?? []);
@@ -79,66 +103,82 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setSaveError("");
+    let drinkProfile: DrinkProfile | null | undefined;
+    if (drinkEdited) {
+      const ranges = Object.fromEntries(Object.entries(drinkPrices)
+        .filter(([, range]) => range.min !== "" || range.max !== "")
+        .map(([key, range]) => [key, { min: range.min === "" ? NaN : Number(range.min), max: range.max === "" ? NaN : Number(range.max) }]));
+      drinkProfile = Object.keys(ranges).length ? { ...ranges, sourceUrl: drinkSource.trim(), checkedAt: drinkChecked, coverage: drinkCoverage.trim() } : null;
+      const error = validateDrinkProfile(drinkProfile);
+      if (error) { setSaveError(error); return; }
+    }
     setSaving(true);
+    try {
+      const body = {
+        ...(drinkEdited ? { drink_profile: drinkProfile } : {}),
+        name,
+        cuisine: cuisines,
+        price_tier: priceTier,
+        supports_dine_in: supportsDineIn,
+        supports_takeout: supportsTakeout,
+        supports_delivery: supportsDelivery,
+        delivery_platform: deliveryPlatform || null,
+        vibe_tags: vibeTags,
+        favorite_dishes: favoriteDishes.split(",").map((d) => d.trim()).filter(Boolean),
+        notes: notes || null,
+        address: address || null,
+        google_place_id: restaurant?.google_place_id ?? null,
+        operating_hours: Object.keys(operatingHours).length > 0 ? operatingHours : null,
+      };
 
-    const body = {
-      name,
-      cuisine: cuisines,
-      price_tier: priceTier,
-      supports_dine_in: supportsDineIn,
-      supports_takeout: supportsTakeout,
-      supports_delivery: supportsDelivery,
-      delivery_platform: deliveryPlatform || null,
-      vibe_tags: vibeTags,
-      favorite_dishes: favoriteDishes.split(",").map((d) => d.trim()).filter(Boolean),
-      notes: notes || null,
-      address: address || null,
-      google_place_id: restaurant?.google_place_id ?? null,
-      operating_hours: Object.keys(operatingHours).length > 0 ? operatingHours : null,
-    };
+      let restaurantId = restaurant?.id;
 
-    let restaurantId = restaurant?.id;
-
-    if (restaurant) {
-      await fetch(`/api/restaurants/${restaurant.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-    } else {
-      const res = await fetch("/api/restaurants", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const created = await res.json();
-      restaurantId = created.id;
-    }
-
-    for (const dealId of dealsToDelete) {
-      await fetch(`/api/deals/${dealId}`, { method: "DELETE" });
-    }
-
-    if (restaurant) {
-      for (const deal of existingDeals) {
-        if (!dealsToDelete.includes(deal.id)) {
-          await fetch(`/api/deals/${deal.id}`, { method: "DELETE" });
-        }
-      }
-    }
-
-    for (const deal of deals) {
-      if (deal.description) {
-        await fetch(`/api/restaurants/${restaurantId}/deals`, {
+      if (restaurant) {
+        await checkedFetch(`/api/restaurants/${restaurant.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+      } else {
+        const res = await checkedFetch("/api/restaurants", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(deal),
+          body: JSON.stringify(body),
         });
+        const created = await res.json();
+        restaurantId = created.id;
       }
-    }
 
-    router.push("/admin");
-    router.refresh();
+      for (const dealId of dealsToDelete) {
+        await checkedFetch(`/api/deals/${dealId}`, { method: "DELETE" });
+      }
+
+      if (restaurant) {
+        for (const deal of existingDeals) {
+          if (!dealsToDelete.includes(deal.id)) {
+            await checkedFetch(`/api/deals/${deal.id}`, { method: "DELETE" });
+          }
+        }
+      }
+
+      for (const deal of deals) {
+        if (deal.description) {
+          await checkedFetch(`/api/restaurants/${restaurantId}/deals`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(deal),
+          });
+        }
+      }
+
+      router.push("/admin");
+      router.refresh();
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Could not save. Please try again.");
+    } finally {
+      setSaving(false);
+    }
   }
 
   const inputStyle = { background: "var(--card)", borderColor: "var(--card-border)", color: "var(--foreground)" };
@@ -335,6 +375,31 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
         </div>
       </div>
 
+      <fieldset className="space-y-3 rounded-xl border p-4" style={{ borderColor: "var(--card-border)" }}>
+        <legend className="px-1 text-sm font-medium">Regular drink prices</legend>
+        <p className="text-xs" style={{ color: "var(--muted)" }}>Use menu prices, not happy-hour prices. Leave unverified categories blank. Wine is by the glass.</p>
+        {(["beer", "wine", "cocktails"] as const).map((key) => (
+          <div key={key} className="grid grid-cols-3 items-center gap-2">
+            <span className="text-sm capitalize">{key}</span>
+            {(["min", "max"] as const).map((bound) => (
+              <input key={bound} type="number" min="0.01" step="0.01" aria-label={`${key} ${bound === "min" ? "minimum" : "maximum"} price`} placeholder={bound === "min" ? "Min $" : "Max $"} value={drinkPrices[key][bound]}
+                onChange={(e) => { setDrinkEdited(true); setDrinkPrices((prev) => ({ ...prev, [key]: { ...prev[key], [bound]: e.target.value } })); }}
+                className="w-full rounded-lg border px-2 py-2 text-sm" style={inputStyle} />
+            ))}
+          </div>
+        ))}
+        <label className="block text-xs">Menu source URL
+          <input type="url" value={drinkSource} onChange={(e) => { setDrinkEdited(true); setDrinkSource(e.target.value); }} placeholder="https://restaurant.com/menu" className="mt-1 w-full rounded-lg border px-3 py-2 text-sm" style={inputStyle} />
+        </label>
+        <label className="block text-xs">Menu checked on
+          <input type="date" value={drinkChecked} onChange={(e) => { setDrinkEdited(true); setDrinkChecked(e.target.value); }} className="mt-1 w-full rounded-lg border px-3 py-2 text-sm" style={inputStyle} />
+        </label>
+        <label className="block text-xs">Coverage and exclusions
+          <textarea value={drinkCoverage} maxLength={1000} onChange={(e) => { setDrinkEdited(true); setDrinkCoverage(e.target.value); }} placeholder="For example: cans and bottles only; drafts unpriced" className="mt-1 w-full rounded-lg border px-3 py-2 text-sm" style={inputStyle} />
+        </label>
+        <button type="button" className="text-xs underline" onClick={() => { setDrinkEdited(true); setDrinkPrices({ beer: { min: "", max: "" }, wine: { min: "", max: "" }, cocktails: { min: "", max: "" } }); setDrinkSource(""); setDrinkChecked(""); setDrinkCoverage(""); }}>Clear saved drink prices</button>
+      </fieldset>
+
       <div>
         <label className="mb-1.5 block text-sm font-medium">Notes</label>
         <textarea
@@ -458,6 +523,7 @@ export default function RestaurantForm({ restaurant, existingDeals = [] }: Props
         </div>
       </div>
 
+      {saveError && <p role="alert" className="rounded-xl border p-3 text-sm" style={{ borderColor: "var(--card-border)" }}>{saveError}</p>}
       <button
         type="submit"
         disabled={saving || !name || cuisines.length === 0}

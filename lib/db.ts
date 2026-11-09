@@ -39,9 +39,13 @@ export async function getRestaurantsWithDeals(): Promise<RestaurantWithDeals[]> 
 
 export async function createRestaurant(data: Omit<Restaurant, "id" | "created_at" | "updated_at">): Promise<Restaurant> {
   const sql = getDb();
-  const rows = await sql`
+  const rows = data.drink_profile === undefined ? await sql`
     INSERT INTO restaurants (name, cuisine, price_tier, supports_dine_in, supports_takeout, supports_delivery, delivery_platform, vibe_tags, favorite_dishes, notes, address, google_place_id, operating_hours)
     VALUES (${data.name}, ${data.cuisine}, ${data.price_tier}, ${data.supports_dine_in}, ${data.supports_takeout}, ${data.supports_delivery}, ${data.delivery_platform}, ${data.vibe_tags}, ${data.favorite_dishes}, ${data.notes}, ${data.address}, ${data.google_place_id}, ${JSON.stringify(data.operating_hours)})
+    RETURNING *
+  ` : await sql`
+    INSERT INTO restaurants (name, cuisine, price_tier, supports_dine_in, supports_takeout, supports_delivery, delivery_platform, vibe_tags, favorite_dishes, notes, address, google_place_id, operating_hours, drink_profile)
+    VALUES (${data.name}, ${data.cuisine}, ${data.price_tier}, ${data.supports_dine_in}, ${data.supports_takeout}, ${data.supports_delivery}, ${data.delivery_platform}, ${data.vibe_tags}, ${data.favorite_dishes}, ${data.notes}, ${data.address}, ${data.google_place_id}, ${JSON.stringify(data.operating_hours)}, ${JSON.stringify(data.drink_profile)})
     RETURNING *
   `;
   return rows[0] as unknown as Restaurant;
@@ -53,7 +57,7 @@ export async function updateRestaurant(id: string, data: Partial<Omit<Restaurant
   if (!current) return null;
 
   const merged = { ...current, ...data, updated_at: new Date().toISOString() };
-  const rows = await sql`
+  const rows = data.drink_profile === undefined ? await sql`
     UPDATE restaurants SET
       name = ${merged.name},
       cuisine = ${merged.cuisine},
@@ -68,6 +72,25 @@ export async function updateRestaurant(id: string, data: Partial<Omit<Restaurant
       address = ${merged.address},
       google_place_id = ${merged.google_place_id},
       operating_hours = ${JSON.stringify(merged.operating_hours)},
+      updated_at = NOW()
+    WHERE id = ${id}
+    RETURNING *
+  ` : await sql`
+    UPDATE restaurants SET
+      name = ${merged.name},
+      cuisine = ${merged.cuisine},
+      price_tier = ${merged.price_tier},
+      supports_dine_in = ${merged.supports_dine_in},
+      supports_takeout = ${merged.supports_takeout},
+      supports_delivery = ${merged.supports_delivery},
+      delivery_platform = ${merged.delivery_platform},
+      vibe_tags = ${merged.vibe_tags},
+      favorite_dishes = ${merged.favorite_dishes},
+      notes = ${merged.notes},
+      address = ${merged.address},
+      google_place_id = ${merged.google_place_id},
+      operating_hours = ${JSON.stringify(merged.operating_hours)},
+      drink_profile = ${JSON.stringify(data.drink_profile)},
       updated_at = NOW()
     WHERE id = ${id}
     RETURNING *

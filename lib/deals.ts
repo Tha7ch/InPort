@@ -2,46 +2,42 @@ import type { Deal, RestaurantWithDeals } from "@/types";
 
 const DAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
+function localTime(now: Date) {
+  const parts = Object.fromEntries(new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/New_York", weekday: "long", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+  }).formatToParts(now).map(({ type, value }) => [type, value]));
+  return { day: parts.weekday.toLowerCase(), minutes: Number(parts.hour) * 60 + Number(parts.minute) };
+}
+
+function parseTime(value: string): number | null {
+  if (!/^([01]\d|2[0-3]):[0-5]\d(?::00)?$/.test(value)) return null;
+  const [hours, minutes] = value.split(":").map(Number);
+  return hours * 60 + minutes;
+}
+
 export function isActiveDeal(deal: Deal, now: Date = new Date()): boolean {
-  const currentDay = DAY_NAMES[now.getDay()];
-
-  if (!deal.days.includes(currentDay)) return false;
-
-  if (deal.type === "happy-hour" && deal.time_start && deal.time_end) {
-    const currentMinutes = now.getHours() * 60 + now.getMinutes();
-    const [startH, startM] = deal.time_start.split(":").map(Number);
-    const [endH, endM] = deal.time_end.split(":").map(Number);
-    const startMinutes = startH * 60 + startM;
-    const endMinutes = endH * 60 + endM;
-    return currentMinutes >= startMinutes && currentMinutes <= endMinutes;
+  const local = localTime(now);
+  if (deal.time_start && deal.time_end) {
+    const start = parseTime(deal.time_start), end = parseTime(deal.time_end);
+    if (start === null || end === null || start === end) return false;
+    if (end < start) {
+      const yesterday = DAY_NAMES[(DAY_NAMES.indexOf(local.day) + 6) % 7];
+      return (deal.days.includes(local.day) && local.minutes >= start) || (deal.days.includes(yesterday) && local.minutes < end);
+    }
+    return deal.days.includes(local.day) && local.minutes >= start && local.minutes < end;
   }
-
-  return true;
+  // Incomplete time-limited offers cannot be claimed active.
+  if (deal.time_start || deal.time_end || deal.type === "happy-hour") return false;
+  return deal.days.includes(local.day);
 }
 
 export function getActiveDeals(restaurants: RestaurantWithDeals[], now: Date = new Date()): { restaurant: RestaurantWithDeals; activeDeals: Deal[] }[] {
-  const results: { restaurant: RestaurantWithDeals; activeDeals: Deal[] }[] = [];
-
-  for (const restaurant of restaurants) {
-    const activeDeals = restaurant.deals.filter((deal) => isActiveDeal(deal, now));
-    if (activeDeals.length > 0) {
-      results.push({ restaurant, activeDeals });
-    }
-  }
-
-  return results;
+  return restaurants.map(restaurant => ({ restaurant, activeDeals: restaurant.deals.filter(deal => isActiveDeal(deal, now)) }))
+    .filter(result => result.activeDeals.length > 0);
 }
 
 export function getTonightDeals(restaurants: RestaurantWithDeals[], now: Date = new Date()): { restaurant: RestaurantWithDeals; tonightDeals: Deal[] }[] {
-  const currentDay = DAY_NAMES[now.getDay()];
-  const results: { restaurant: RestaurantWithDeals; tonightDeals: Deal[] }[] = [];
-
-  for (const restaurant of restaurants) {
-    const tonightDeals = restaurant.deals.filter((deal) => deal.days.includes(currentDay));
-    if (tonightDeals.length > 0) {
-      results.push({ restaurant, tonightDeals });
-    }
-  }
-
-  return results;
+  const day = localTime(now).day;
+  return restaurants.map(restaurant => ({ restaurant, tonightDeals: restaurant.deals.filter(deal => deal.days.includes(day)) }))
+    .filter(result => result.tonightDeals.length > 0);
 }

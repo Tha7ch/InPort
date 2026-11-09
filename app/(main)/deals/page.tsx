@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { RestaurantWithDeals, Deal } from "@/types";
+import type { RestaurantWithDeals } from "@/types";
+import { isActiveDeal } from "@/lib/deals";
 import DealBadge from "@/components/DealBadge";
 
 const LOCAL_TIME_ZONE = "America/New_York";
@@ -21,22 +22,6 @@ function shiftDate(date: string, days: number): string {
 }
 
 const DAY_NAMES = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-
-function isDealActiveNow(deal: Deal, now: Date): boolean {
-  const currentDay = DAY_NAMES[new Date(`${localDateKey(now)}T12:00:00Z`).getUTCDay()];
-  if (!deal.days.includes(currentDay)) return false;
-  if (deal.type === "happy-hour" && deal.time_start && deal.time_end) {
-    const time = new Intl.DateTimeFormat("en-GB", {
-      timeZone: LOCAL_TIME_ZONE, hour: "2-digit", minute: "2-digit", hourCycle: "h23",
-    }).format(now);
-    const [hour, minute] = time.split(":").map(Number);
-    const currentMinutes = hour * 60 + minute;
-    const [startH, startM] = deal.time_start.split(":").map(Number);
-    const [endH, endM] = deal.time_end.split(":").map(Number);
-    return currentMinutes >= startH * 60 + startM && currentMinutes <= endH * 60 + endM;
-  }
-  return true;
-}
 
 export default function DealsPage() {
   const [restaurants, setRestaurants] = useState<RestaurantWithDeals[]>([]);
@@ -111,7 +96,7 @@ export default function DealsPage() {
   const restaurantsWithSelectedDeals = restaurants
     .map((r) => ({
       restaurant: r,
-      selectedDeals: r.deals.filter((d) => d.days.includes(selectedDay)),
+      selectedDeals: r.deals.filter((d) => d.days.includes(selectedDay) || (now !== null && selectedDate === today && isActiveDeal(d, now))),
     }))
     .filter((r) => r.selectedDeals.length > 0);
 
@@ -244,7 +229,7 @@ export default function DealsPage() {
               {selectedDeals.map((deal) => (
                 <div key={deal.id} className="flex items-center gap-1">
                   <DealBadge deal={deal} />
-                  {now && selectedDate === today && isDealActiveNow(deal, now) && (
+                  {now && selectedDate === today && isActiveDeal(deal, now) && (
                     <span className="text-[10px] font-bold uppercase" style={{ color: "var(--success)" }}>
                       LIVE
                     </span>

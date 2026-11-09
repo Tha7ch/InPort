@@ -1,3 +1,5 @@
+import type { DrinkProfile } from "@/lib/drink-profile";
+
 export interface DayHours {
   open: string;
   close: string;
@@ -22,6 +24,7 @@ export interface Restaurant {
   address: string | null;
   google_place_id: string | null;
   operating_hours: OperatingHours | null;
+  drink_profile?: DrinkProfile | null;
   created_at: string;
   updated_at: string;
 }
