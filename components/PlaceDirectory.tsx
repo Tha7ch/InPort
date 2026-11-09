@@ -42,7 +42,7 @@ export default function PlaceDirectory({ restaurants, mode, loading, error, onRe
     activeDeals: now ? (restaurant.deals ?? []).filter((deal) => isActiveDeal(deal, now)) : [],
   })).filter(({ restaurant, activeDeals }) => {
     if (mode === "drinks" && !includeOtherPlaces && !hasConfirmedDrinksMenu(restaurant)) return false;
-    const searchText = [restaurant.name, ...restaurant.cuisine, ...restaurant.vibe_tags, restaurant.address ?? ""].join(" ").toLowerCase();
+    const searchText = [restaurant.name, ...restaurant.cuisine, ...restaurant.vibe_tags, getPlaceResearch(restaurant)?.displayAddress ?? restaurant.address ?? ""].join(" ").toLowerCase();
     if (!searchText.includes(query.trim().toLowerCase())) return false;
     if (filters?.cuisine && !restaurant.cuisine.includes(filters.cuisine)) return false;
     if (filters?.mode === "dine-in" && !restaurant.supports_dine_in) return false;
@@ -102,7 +102,7 @@ export default function PlaceDirectory({ restaurants, mode, loading, error, onRe
                 </details>}
               </>}
               {activeDeals.length > 0 && <Link href="/deals" className="mt-3 block rounded-lg px-3 py-2 text-sm" style={{ background: "var(--deal-bg)", color: "var(--deal)" }}><span className="font-semibold">Deal on now</span> · {activeDeals[0].description}{activeDeals.length > 1 && ` (+${activeDeals.length - 1} more)`}</Link>}
-              {restaurant.address && <p className="mt-3 text-xs" style={{ color: "var(--muted)" }}>{restaurant.address}</p>}
+              {(research?.displayAddress ?? restaurant.address) && <p className="mt-3 text-xs" style={{ color: "var(--muted)" }}>{research?.displayAddress ?? restaurant.address}</p>}
             </article>
           );
         })}

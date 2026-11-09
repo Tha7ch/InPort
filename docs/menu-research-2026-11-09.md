@@ -61,3 +61,14 @@ The source-backed price/hours lookup ships with the app and does not need produc
 ## Verification
 
 25 focused tests passed, including SQL-null defaults versus explicit price clearing, sourced range mapping, Park Lunch bar versus kitchen closing, and seasonal closures. Typecheck, lint and production build passed. Synthetic browser checks verified displayed ranges, removal of Venue, expandable evidence, default filtering and the optional other-places control. Database reads normalize untouched null to absent data; user clears persist a separate marker. No migration or production restaurant/deal writes were performed.
+
+## Live-check corrections
+
+Live cards confirmed all eight price profiles and the Park Lunch1AM correction. Existing saved metadata still had stale Grog closing and Smoke city; source-backed display metadata corrects these without database edits:
+- Grog official homepage: Mon–Thu11:30AM–10PM, Fri/Sat11:30AM–11PM, Sun11AM–9PM.
+- Michael's official homepage: Mon–Thu/Sun11:30AM–9PM, Fri/Sat11:30AM–10PM.
+- Port Vida official homepage: Mon–Thu11AM–10PM, Fri/Sat11AM–11PM, Sun11AM–9PM.
+- Tuscan official homepage: Sun–Wed11AM–9PM, Thu–Sat11AM–10PM.
+- Smoke official menu footer: Tue–Thu/Sun11:30AM–8PM, Fri/Sat11:30AM–9PM; Monday omitted, not asserted closed. Restaurant is Salisbury.
+- Poynt reserve: Monday closed, Tue–Thu4–9PM, Fri4–10PM, Sat11:30AM–10PM. Sunday10AM–3PM/3:30–8PM documented, but single-interval helper leaves Sunday unknown rather than erasing the break.
+These are published restaurant hours except explicitly identified bar hours; last-call timing is not inferred.

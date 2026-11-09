@@ -40,3 +40,17 @@ test('unconfirmed cafes can be separated without claiming alcohol is unavailable
   assert.equal(hasConfirmedDrinksMenu(place('Metzy\'s')), true);
   assert.equal(hasConfirmedDrinksMenu({ ...place('Dunkin Donuts'), drink_profile: { beer: { min: 5, max: 8 } } }), true);
 });
+
+test('fresh restaurant schedules override stale saved hours while bar overrides retain priority', () => {
+  const mondayLate = new Date('2026-11-10T02:30:00Z');
+  const grog = getPlaceStatus(place('The Grog'), 'drinks', mondayLate);
+  assert.equal(grog.state, 'open');
+  assert.match(grog.label, /Closes at 10 PM/);
+  assert.equal(getPlaceStatus(place('The Poynt'), 'food', new Date('2026-11-09T17:00:00Z')).state, 'closed');
+  assert.match(getPlaceStatus(place('Park Lunch'), 'drinks', mondayLate).label, /Closes at 1 AM/);
+});
+test('research corrects Smoke location without inferring Monday closure or Poynt Sunday service gaps', () => {
+  assert.equal(getPlaceResearch(place('Smoke on The Water'))?.displayAddress, 'Salisbury, MA');
+  assert.equal(getPlaceStatus(place('Smoke on The Water'), 'food', new Date('2026-11-09T17:00:00Z')).state, 'unknown');
+  assert.equal(getPlaceStatus(place('The Poynt'), 'drinks', new Date('2026-11-15T20:15:00Z')).state, 'unknown');
+});
