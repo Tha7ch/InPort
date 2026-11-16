@@ -9,7 +9,7 @@ const POYNT: DrinkProfile = {
   wine: { min: 13, max: 19 },
   cocktails: { min: 15, max: 15 },
   sourceUrl: "https://poyntnewburyport.com/menus",
-  checkedAt: "2026-11-08",
+  checkedAt: "2026-11-16",
   coverage: "Beer: cans and bottles; drafts unpriced. Wine: by the glass; market-price Sancerre excluded.",
 };
 

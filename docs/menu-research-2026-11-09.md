@@ -72,3 +72,12 @@ Live cards confirmed all eight price profiles and the Park Lunch1AM correction. 
 - Smoke official menu footer: Tue–Thu/Sun11:30AM–8PM, Fri/Sat11:30AM–9PM; Monday omitted, not asserted closed. Restaurant is Salisbury.
 - Poynt reserve: Monday closed, Tue–Thu4–9PM, Fri4–10PM, Sat11:30AM–10PM. Sunday10AM–3PM/3:30–8PM documented, but single-interval helper leaves Sunday unknown rather than erasing the break.
 These are published restaurant hours except explicitly identified bar hours; last-call timing is not inferred.
+
+## November 16 recheck
+
+- Port Vida's current official drink page still lists beer at $5–7 and cocktails at $10–14. Every wine under Red, White and Sparkling is listed at $10. The directory now shows `$10` for wine with a visible evidence note that the menu does not state the exact pour size.
+- The Poynt's official HTML still lists beer at $5–8, wine by the glass at $13–19 and cocktails at $15. Its $10 Early Bar menu is still advertised Tuesday–Sunday 4–6 PM plus Saturday lunch, bar only and not for takeout.
+- Tuscan's official happy-hour page still confirms the six-item menu and a 3–5 PM bar window, but now says “every day” and publishes no price. The directory preserves Trace's supplied `$12`, Monday–Friday version while displaying the conflict and advising direct confirmation.
+- The Thirsty Whale's public Facebook page still exposes the September 28 half-price-appetizer post for Monday–Wednesday 1–3 PM. No expiry is visible. Its public photo grid did not expose a priced drink menu while signed out, and the linked website still provides no usable price evidence.
+- Current official pages still do not publish alcohol prices for Park Lunch, Anchor Stone or Metzy's. The Grog publishes a priced drink PDF but still omits beer prices. No values were inferred for those gaps.
+- Michael's current site advertises weekly specials, but its linked specials PDF returns 404. Search-engine text for the old PDF was not accepted as current price evidence.

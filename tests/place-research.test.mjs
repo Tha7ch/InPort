@@ -9,10 +9,18 @@ test('current sourced menus provide independent ranges without inventing missing
   assert.deepEqual(getDrinkProfile(place('The Grog'))?.wine, { min: 10, max: 16 });
   assert.equal(getDrinkProfile(place('The Grog'))?.beer, undefined);
   assert.deepEqual(getDrinkProfile(place('Tuscan Sea Grill & Bar'))?.wine, { min: 12, max: 26 });
-  assert.equal(getDrinkProfile(place('Port Vida'))?.wine, undefined);
+  assert.deepEqual(getDrinkProfile(place('Port Vida'))?.wine, { min: 10, max: 10 });
   assert.deepEqual(getDrinkProfile(place('The Goat'))?.wine, { min: 10, max: 14 });
   assert.equal(getPlaceResearch(place('The Paddle Inn'))?.priceNotes?.wine, 'Market price');
   for (const name of ["Michael's Harborside", 'Smoke on the Water', 'Port Vida', 'The Goat', 'The Grog', 'Tuscan Sea Grill', 'The Paddle Inn', 'The Poynt']) assert.equal(validateDrinkProfile(getDrinkProfile(place(name))), null);
+});
+test('rechecked offers preserve source conflicts instead of presenting them as settled facts', () => {
+  const tuscan = getPlaceResearch(place('Tuscan Sea Grill & Bar'));
+  assert.equal(tuscan?.checkedAt, '2026-11-16');
+  assert.match(tuscan?.offers?.[0]?.description ?? '', /User-supplied \$12/);
+  assert.match(tuscan?.offers?.[0]?.description ?? '', /need direct confirmation/);
+  assert.equal(getPlaceResearch(place('The Thirsty Whale'))?.checkedAt, '2026-11-16');
+  assert.equal(getDrinkProfile(place('The Poynt'))?.checkedAt, '2026-11-16');
 });
 test('saved prices and explicit clearing retain priority over curated research', () => {
   assert.equal(getDrinkProfile({ ...place('The Grog'), drink_profile: null }), undefined);
