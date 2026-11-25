@@ -10,7 +10,7 @@ All 20 places were checked against official sites, linked menus/ordering and pub
 | Smoke on the Water, Salisbury | $6–11 | $13 | $13–16 | Domestic cans/21oz Riverwalk or Woodstock draft; house wine glasses; Front Porch Paloma or Sweet Tea Collins/Smoke-on-the-Water. May2026 images visually read. Excludes $8 NA Peach&Tide Spritz. |
 | Port Vida | $5–7 | $10 listed | $10–14 | Budweiser/16oz drafts; every wine under Red, White and Sparkling is listed at $10, though exact pour size is unstated; Port Vida Margarita/Senorita or El Jefe. Online seasonal menu $14–16 is separate. |
 | The Goat | Not published | $10–14 listed | $12–18 listed | CK Mondavi/A to Z Pinot or Imagery Cab; brunch Bloody Mary12/signature frappe18. Shared chain menus; frappe is16 on food page. Wine page rendered directly in browser; serving size not explicit. |
-| The Grog | $5.50–10 photographed | $10–16 | $12–16 | Pennsylvania Lager/domestic bottles to Little Sip. Beer range comes from Trace's in-house menu photos, printed November21 2026; visible regular full pours/bottles only. Wine/cocktails come from the October2026 PDF. |
+| The Grog | $6–10 displayed | $10–16 | $12–16 | Exact photographed minimum is $5.50 for Pennsylvania Lager/domestic bottles and is rounded upward under the app's whole-dollar rule; maximum is $10 Little Sip. Beer menu printed November21 2026. |
 | Tuscan Sea Grill | $7–14 | $12–26 listed | $14–17 | Miller High Life/Lawson's Sip of Sunshine; Moscato d'Asti/Caymus Cabernet; sangria or spritz/Blue Jean Baby. Current linked beverage PDF filename2025; separate wine PDF explicitly bottle-only excluded. Beverage wine list implies single servings, no ounce count stated. |
 | The Paddle Inn | $5–10 standard | Market price | $12–16 | Coors or Miller/Guinness; brunch Rose Spritz/dinner Nitro Espresso Martini. Undated linked images visually read; 40oz Miller12, unpriced taps and market cocktails excluded. |
 | The Poynt | $5–8 | $13–19 | $15 | Bud Light or Coors/Mystery Beer; Barone Fini/Rombauer; nine cocktails15. Current official HTML agrees with supplied menu. Draft and market Sancerre excluded. |
@@ -84,6 +84,6 @@ These are published restaurant hours except explicitly identified bar hours; las
 
 ## November 24 Grog menu photos
 
-Trace supplied two photos of The Grog's in-house beer menu, which is printed November 21, 2026. The visible, readable regular beer entries run from $5.50 (Pennsylvania Lager and several 12 oz domestic bottles) to $10 (12 oz Little Sip). The directory now shows **Beer $5.50–10** alongside the previously verified **Wine $10–16** and **Cocktails $12–16**.
+Trace supplied two photos of The Grog's in-house beer menu, which is printed November 21, 2026. The visible, readable regular beer entries run from an exact $5.50 (Pennsylvania Lager and several 12 oz domestic bottles) to $10 (12 oz Little Sip). InPort rounds range boundaries upward to whole dollars, so the directory shows **Beer $6–10** alongside the previously verified **Wine $10–16** and **Cocktails $12–16**.
 
 The beer calculation excludes 4 oz samples, hard cider, canned vodka/seltzer drinks, nonalcoholic beer and cropped prices. The official website remains the identity/menu link, while the research note explicitly identifies Trace's photos as the price evidence; the private attachment paths are not published.

@@ -1,9 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { validateDrinkProfile, restaurantSaveError } from "../lib/drink-profile.ts";
+import { formatDrinkRange, validateDrinkProfile, restaurantSaveError } from "../lib/drink-profile.ts";
 const valid = { beer: { min: 5, max: 8 }, sourceUrl: "https://example.com/menu", checkedAt: "2026-11-08" };
 test("accepts partial, single-price, unknown and cleared profiles", () => {
   for (const value of [valid, { ...valid, beer: { min: 5, max: 5 } }, undefined, null]) assert.equal(validateDrinkProfile(value), null);
+});
+test("display ranges round every boundary upward to full dollars", () => {
+  assert.equal(formatDrinkRange({ min: 5.5, max: 10 }), "$6–10");
+  assert.equal(formatDrinkRange({ min: 12.01, max: 12.01 }), "$13");
+  assert.equal(formatDrinkRange(undefined, "Not verified"), "Not verified");
 });
 test("rejects nonfinite, reversed, zero, negative and incomplete ranges", () => {
   for (const range of [{min:NaN,max:8},{min:5,max:Infinity},{min:8,max:5},{min:0,max:8},{min:-1,max:8},{min:5},{min:"5",max:8},null]) assert.ok(validateDrinkProfile({...valid,beer:range}));

@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { RestaurantWithDeals } from "@/types";
 import { getPlaceResearch, getPlaceStatus, hasConfirmedDrinksMenu } from "@/lib/place-research";
 import { getDrinkProfile } from "@/lib/drinks";
+import { formatDrinkRange } from "@/lib/drink-profile";
 import { isActiveDeal } from "@/lib/deals";
 
 interface Props {
@@ -18,12 +19,6 @@ interface Props {
 
 function barPriority(restaurant: RestaurantWithDeals) {
   return /\b(goat|thirsty whale)\b/i.test(restaurant.name) || restaurant.vibe_tags.some((tag) => /\b(bar|pub|tavern)\b/i.test(tag));
-}
-
-function formatRange(range: { min: number; max: number } | undefined, missing: string = "Not listed") {
-  if (!range) return missing;
-  const price = (value: number) => Number.isInteger(value) ? `${value}` : value.toFixed(2);
-  return range.min === range.max ? `$${price(range.min)}` : `$${price(range.min)}–${price(range.max)}`;
 }
 
 export default function PlaceDirectory({ restaurants, mode, loading, error, onRetry, filters }: Props) {
@@ -89,7 +84,7 @@ export default function PlaceDirectory({ restaurants, mode, loading, error, onRe
               </div>
               {mode === "drinks" && <>
                 {drinks && <dl className="mt-4 grid grid-cols-3 gap-2">
-                  {([['Beer', drinks?.beer, research?.priceNotes?.beer], ['Wine / glass', drinks?.wine, research?.priceNotes?.wine], ['Cocktails', drinks?.cocktails, research?.priceNotes?.cocktails]] as const).map(([label, range, missing]) => <div key={label} className="rounded-lg p-2 text-center" style={{ background: "var(--muted-bg)" }}><dt className="text-xs" style={{ color: "var(--muted)" }}>{label}</dt><dd className={`mt-1 font-semibold ${range ? "text-base" : "text-xs"}`}>{formatRange(range, missing)}</dd></div>)}
+                  {([['Beer', drinks?.beer, research?.priceNotes?.beer], ['Wine / glass', drinks?.wine, research?.priceNotes?.wine], ['Cocktails', drinks?.cocktails, research?.priceNotes?.cocktails]] as const).map(([label, range, missing]) => <div key={label} className="rounded-lg p-2 text-center" style={{ background: "var(--muted-bg)" }}><dt className="text-xs" style={{ color: "var(--muted)" }}>{label}</dt><dd className={`mt-1 font-semibold ${range ? "text-base" : "text-xs"}`}>{formatDrinkRange(range, missing)}</dd></div>)}
                 </dl>}
                 {!drinks && <p className="mt-2 text-xs leading-relaxed" style={{ color: "var(--muted)" }}>{restaurant.drink_profile === null ? "Saved drink prices have been cleared." : research?.note ?? "No current priced drinks menu has been confirmed."}</p>}
                 {(drinks || research) && <details className="mt-3 text-xs leading-relaxed" style={{ color: "var(--muted)" }}><summary className="cursor-pointer font-semibold">Menu details &amp; sources</summary>

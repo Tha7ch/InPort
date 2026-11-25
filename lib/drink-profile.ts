@@ -8,6 +8,12 @@ export interface DrinkProfile {
   coverage?: string;
 }
 
+export function formatDrinkRange(range: DrinkRange | undefined, missing = "Not listed"): string {
+  if (!range) return missing;
+  const price = (value: number) => `${Math.ceil(value)}`;
+  return range.min === range.max ? `$${price(range.min)}` : `$${price(range.min)}–${price(range.max)}`;
+}
+
 /** Returns an error for invalid input; undefined and null mean no profile. */
 export function validateDrinkProfile(value: unknown): string | null {
   if (value === undefined || value === null) return null;
