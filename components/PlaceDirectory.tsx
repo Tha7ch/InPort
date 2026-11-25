@@ -22,7 +22,8 @@ function barPriority(restaurant: RestaurantWithDeals) {
 
 function formatRange(range: { min: number; max: number } | undefined, missing: string = "Not listed") {
   if (!range) return missing;
-  return range.min === range.max ? `$${range.min}` : `$${range.min}–${range.max}`;
+  const price = (value: number) => Number.isInteger(value) ? `${value}` : value.toFixed(2);
+  return range.min === range.max ? `$${price(range.min)}` : `$${price(range.min)}–${price(range.max)}`;
 }
 
 export default function PlaceDirectory({ restaurants, mode, loading, error, onRetry, filters }: Props) {

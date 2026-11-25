@@ -7,7 +7,8 @@ const place = name => ({ name, id: 'test', operating_hours: { monday: { open: '1
 test('current sourced menus provide independent ranges without inventing missing categories', () => {
   assert.deepEqual(getDrinkProfile(place("Michael’s Harborside"))?.beer, { min: 6, max: 12 });
   assert.deepEqual(getDrinkProfile(place('The Grog'))?.wine, { min: 10, max: 16 });
-  assert.equal(getDrinkProfile(place('The Grog'))?.beer, undefined);
+  assert.deepEqual(getDrinkProfile(place('The Grog'))?.beer, { min: 5.5, max: 10 });
+  assert.equal(getDrinkProfile(place('The Grog'))?.checkedAt, '2026-11-24');
   assert.deepEqual(getDrinkProfile(place('Tuscan Sea Grill & Bar'))?.wine, { min: 12, max: 26 });
   assert.deepEqual(getDrinkProfile(place('Port Vida'))?.wine, { min: 10, max: 10 });
   assert.deepEqual(getDrinkProfile(place('The Goat'))?.wine, { min: 10, max: 14 });
